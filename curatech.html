@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CuraTech - Healthcare Management System</title>
+  <style>
+    :root { --primary:#0f766e; --primary-dark:#115e59; --bg:#f4f8fb; --card:#fff; --text:#1f2937; --muted:#667085; --danger:#dc2626; --success:#16a34a; --accent:#2563eb; --purple:#7c3aed; --border:#dfe7f1; }
+    * { box-sizing:border-box; margin:0; padding:0; font-family:Arial,sans-serif; }
+    body { background:var(--bg); color:var(--text); }
+    button,input,select,textarea { font:inherit; }
+    button { cursor:pointer; }
+    .hidden { display:none !important; }
+    .navbar { background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:space-between; padding:16px 6%; position:sticky; top:0; z-index:20; }
+    .logo { font-size:26px; font-weight:700; }
+    .nav-links { display:flex; gap:10px; flex-wrap:wrap; }
+    .nav-links button { background:transparent; border:none; color:#fff; padding:10px 14px; border-radius:7px; }
+    .nav-links button:hover { background:rgba(255,255,255,.08); }
+    .hero { min-height:520px; display:flex; align-items:center; justify-content:space-between; gap:30px; padding:70px 8%; background:linear-gradient(135deg,#ecfeff,#f0fdfa); }
+    .hero-content { max-width:630px; }
+    .hero h1 { font-size:clamp(2.5rem,4vw,4rem); color:#134e4a; margin-bottom:18px; line-height:1.1; }
+    .hero h1 span{ color:var(--primary); }
+    .hero p { font-size:18px; color:var(--muted); line-height:1.7; margin-bottom:24px; }
+    .hero-buttons { display:flex; gap:10px; flex-wrap:wrap; }
+    .hero-image { font-size:180px; }
+    .section { padding:60px 8%; }
+    .section-title { text-align:center; margin-bottom:35px; }
+    .section-title h2 { color:#134e4a; font-size:clamp(2rem,3vw,2.6rem); margin-bottom:10px; }
+    .section-title p { color:var(--muted); }
+    .cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:25px; }
+    .card { background:#fff; padding:30px; border-radius:14px; box-shadow:0 8px 24px rgba(15,118,110,.08); border:1px solid var(--border); }
+    .card-icon { font-size:45px; margin-bottom:16px; }
+    .card h3 { color:#134e4a; margin-bottom:10px; }
+    .card p { color:var(--muted); line-height:1.7; }
+    .auth-container { min-height:calc(100vh - 76px); display:flex; justify-content:center; align-items:center; padding:40px 20px; }
+    .auth-box { width:min(100%,440px); background:#fff; padding:30px 26px; border-radius:16px; border:1px solid var(--border); box-shadow:0 10px 32px rgba(15,118,110,.12); }
+    .auth-box h2 { text-align:center; color:#134e4a; margin-bottom:8px; font-size:32px; }
+    .auth-box p { text-align:center; color:var(--muted); margin-bottom:18px; }
+    .form-grid { display:grid; gap:14px; }
+    .form-grid label { display:block; margin-bottom:6px; font-weight:700; }
+    .form-grid input, .form-grid select, .form-grid textarea { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+    .form-grid textarea { min-height:90px; resize:vertical; }
+    .btn { border:none; padding:12px 18px; border-radius:8px; font-weight:700; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-gray { background:#6b7280; color:#fff; }
+    .btn-green { background:var(--success); color:#fff; }
+    .btn-red { background:var(--danger); color:#fff; }
+    .btn-blue { background:var(--accent); color:#fff; }
+    .btn-sm { padding:8px 10px; font-size:12px; }
+    .dashboard-layout { display:grid; grid-template-columns:250px 1fr; min-height:calc(100vh - 76px); }
+    .sidebar { background:#0b2f2d; color:#fff; padding:28px 18px; }
+    .dashboard-layout[data-role="admin"] .sidebar { background:#172554; }
+    .dashboard-layout[data-role="doctor"] .sidebar { background:#312e81; }
+    .dashboard-layout[data-role="patient"] .sidebar { background:#0b2f2d; }
+    .sidebar-title { text-align:center; margin-bottom:22px; }
+    .sidebar-title h2 { font-size:28px; margin-bottom:4px; }
+    .sidebar-title p { color:rgba(255,255,255,.72); }
+    .sidebar button { display:block; width:100%; padding:12px 14px; margin-bottom:8px; border:none; border-radius:10px; background:transparent; color:#fff; text-align:left; font-weight:600; }
+    .sidebar button.active, .sidebar button:hover { background:rgba(255,255,255,.08); }
+    .sidebar-logout { margin-top:18px; }
+    .dashboard-main { padding:30px 24px 40px; }
+    .dashboard-content { max-width:1500px; margin:0 auto; }
+    .dashboard-welcome { display:flex; align-items:center; justify-content:space-between; gap:22px; padding:30px; margin-bottom:24px; border-radius:18px; color:#fff; background:linear-gradient(125deg,#115e59,#0f766e 65%,#14b8a6); box-shadow:0 14px 30px rgba(15,118,110,.16); }
+    .dashboard-layout[data-role="admin"] .dashboard-welcome { background:linear-gradient(125deg,#172554,#1d4ed8 65%,#60a5fa); }
+    .dashboard-layout[data-role="doctor"] .dashboard-welcome { background:linear-gradient(125deg,#312e81,#6d28d9 65%,#a78bfa); }
+    .dashboard-welcome h1 { font-size:clamp(1.7rem,3vw,2.45rem); margin-bottom:8px; }
+    .dashboard-welcome p { color:rgba(255,255,255,.84); line-height:1.6; }
+    .welcome-mark { flex:0 0 auto; width:76px; height:76px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); border-radius:22px; background:rgba(255,255,255,.12); font-size:36px; }
+    .dashboard-quicklinks { display:flex; gap:10px; flex-wrap:wrap; margin:0 0 24px; }
+    .dashboard-quicklinks button { border:1px solid var(--border); border-radius:999px; background:#fff; color:#334155; padding:9px 14px; font-weight:700; }
+    .dashboard-quicklinks button:hover { border-color:var(--primary); color:var(--primary); }
+    .dashboard-layout[data-role="admin"] .dashboard-quicklinks button:hover { border-color:#1d4ed8; color:#1d4ed8; }
+    .dashboard-layout[data-role="doctor"] .dashboard-quicklinks button:hover { border-color:#6d28d9; color:#6d28d9; }
+    .dashboard-section-title { color:#134e4a; margin-bottom:14px; }
+    .dashboard-layout[data-role="admin"] .dashboard-section-title { color:#172554; }
+    .dashboard-layout[data-role="doctor"] .dashboard-section-title { color:#312e81; }
+    .stat-card { position:relative; overflow:hidden; }
+    .stat-card:after { content:""; position:absolute; inset:0 auto 0 0; width:4px; background:var(--primary); }
+    .dashboard-layout[data-role="admin"] .stat-card:after { background:#2563eb; }
+    .dashboard-layout[data-role="doctor"] .stat-card:after { background:#7c3aed; }
+    .dashboard-anchor { scroll-margin-top:24px; }
+    .schedule-form { display:grid; grid-template-columns:repeat(4,minmax(130px,1fr)) auto; align-items:end; gap:12px; }
+    .schedule-form label, .record-form label, .profile-grid label { display:block; margin-bottom:6px; color:#475569; font-size:13px; font-weight:700; }
+    .schedule-form input, .schedule-form select, .record-form input, .record-form textarea, .profile-grid input { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+    .schedule-row-actions { white-space:nowrap; }
+    .doctor-tools { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .quick-action { width:100%; min-height:128px; padding:20px; border:1px solid var(--border); border-radius:14px; background:#fff; text-align:left; }
+    .quick-action strong { display:block; margin-bottom:7px; color:#1f2937; font-size:17px; }
+    .quick-action span { color:var(--muted); line-height:1.5; }
+    .record-dialog { width:min(560px,calc(100% - 28px)); margin:auto; border:0; border-radius:16px; padding:26px; box-shadow:0 22px 70px rgba(15,23,42,.28); }
+    .record-dialog::backdrop { background:rgba(15,23,42,.55); }
+    .record-form { display:grid; gap:14px; margin-top:18px; }
+    .record-form textarea { min-height:88px; resize:vertical; }
+    .record-dialog-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:6px; }
+    .profile-card { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .profile-field { padding:15px; border-radius:10px; background:#f8fafc; }
+    .profile-field span { display:block; color:var(--muted); font-size:12px; margin-bottom:5px; }
+    .profile-field strong { overflow-wrap:anywhere; }
+    .dashboard-header { margin-bottom:20px; }
+    .dashboard-header h1 { color:#134e4a; font-size:34px; margin-bottom:6px; }
+    .dashboard-header p { color:var(--muted); }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px; margin-bottom:24px; }
+    .stat-card { background:#fff; padding:22px 20px; border-radius:12px; border:1px solid var(--border); box-shadow:0 8px 24px rgba(15,118,110,.05); }
+    .stat-card h3 { color:var(--muted); font-size:14px; margin-bottom:10px; }
+    .stat-number { font-size:32px; font-weight:700; color:#134e4a; }
+    .table-card { background:#fff; padding:16px; border-radius:12px; border:1px solid var(--border); overflow-x:auto; margin-top:22px; }
+    table { width:100%; border-collapse:collapse; min-width:700px; }
+    thead th { background:#f4f8fb; color:#134e4a; padding:12px 10px; text-align:left; border-bottom:1px solid var(--border); }
+    tbody td { padding:12px 10px; border-bottom:1px solid #edf2f7; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+    .search-box { width:min(100%,280px); }
+    .search-box input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+    .status { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+    .status-active { background:rgba(22,163,74,.12); color:#166534; }
+    .status-inactive { background:rgba(220,38,38,.12); color:#991b1b; }
+    .status-pending { background:rgba(234,88,12,.12); color:#9a4d00; }
+    .status-confirmed { background:rgba(37,99,235,.12); color:#1d4ed8; }
+    .status-cancelled { background:rgba(239,68,68,.12); color:#b91c1c; }
+    .status-completed { background:rgba(15,118,110,.12); color:#0f766e; }
+    .form-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:14px; }
+    .toast { position:fixed; right:24px; bottom:24px; background:#0f172a; color:#fff; padding:14px 18px; border-radius:10px; opacity:0; transform:translateY(10px); transition:.25s; pointer-events:none; z-index:2000; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width:900px) { .cards{grid-template-columns:1fr;} .dashboard-layout{grid-template-columns:1fr;} .sidebar{padding:14px;} .sidebar button{display:inline-block;width:auto;} .dashboard-main{padding:22px 16px;} .hero{flex-direction:column;text-align:center;padding-top:50px;} .hero-buttons{justify-content:center;} .schedule-form{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media (max-width:560px) { .navbar{padding:14px 18px;} .nav-links button{padding:8px 10px;font-size:12px;} .form-row{grid-template-columns:1fr;} .logo{font-size:22px;} .dashboard-welcome{padding:23px 18px;} .welcome-mark{width:56px;height:56px;font-size:28px;} .doctor-tools,.profile-card{grid-template-columns:1fr;} .schedule-form{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">CuraTech</div>
+    <div class="nav-links">
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('services')">Services</button>
+      <button onclick="showPage('login')">Login</button>
+      <button onclick="showPage('register')">Register</button>
+    </div>
+  </nav>
+
+  <section id="home" class="page">
+    <div class="hero">
+      <div class="hero-content">
+        <h1>Healthcare that feels <span>personal</span></h1>
+        <p>CuraTech helps clinics, doctors, and patients manage appointments, patient data, and healthcare coordination from one secure platform.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" onclick="showPage('register')">Create Account</button>
+          <button class="btn btn-gray" onclick="showPage('login')">Login Now</button>
+        </div>
+      </div>
+      <div class="hero-image">🏥</div>
+    </div>
+    <div class="section">
+      <div class="section-title">
+        <h2>Our Services</h2>
+        <p>Built to support clinical teams and patient care.</p>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="card-icon">👩‍⚕️</div><h3>Doctor Management</h3><p>Track physician profiles, availability, appointments, and patient workflows.</p></div>
+        <div class="card"><div class="card-icon">📅</div><h3>Appointment Scheduling</h3><p>Let patients schedule and manage bookings with visibility for staff and doctors.</p></div>
+        <div class="card"><div class="card-icon">🩺</div><h3>Patient Records</h3><p>Store diagnoses, prescriptions, records, and notes in one secure place.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="page hidden">
+    <div class="section" style="padding-top:60px;">
+      <div class="section-title">
+        <h2>Healthcare Services</h2>
+        <p>Everything your clinic needs to manage care efficiently.</p>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="card-icon">🧑‍💼</div><h3>Admin Management</h3><p>Monitor counts, review users, and oversee appointments across the full clinic system.</p></div>
+        <div class="card"><div class="card-icon">📋</div><h3>Doctor Workflow</h3><p>Handle appointment approvals, patient visits, and records without switching tools.</p></div>
+        <div class="card"><div class="card-icon">🏥</div><h3>Patient Experience</h3><p>Book appointments, check schedules, and stay informed with a clear view of care progress.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="login" class="page hidden">
+    <div class="auth-container">
+      <div class="auth-box">
+        <h2>Login</h2>
+        <p>Sign in with the email address you used to register. Gmail and other personal email addresses are supported.</p>
+        <div class="form-grid">
+          <div><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="username" placeholder="you@gmail.com" required /></div>
+          <div><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" required /></div>
+          <button class="btn btn-primary" onclick="loginUser()">Login</button>
+          <button class="btn btn-gray" onclick="showPage('register')">Create a new account</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="register" class="page hidden">
+    <div class="auth-container">
+      <div class="auth-box">
+        <h2>Register</h2>
+        <p>Use your own email address, including Gmail. Choose a password for CuraTech.</p>
+        <div class="form-grid">
+          <div><label for="registerName">Full Name</label><input id="registerName" type="text" autocomplete="name" placeholder="Full name" required /></div>
+          <div><label for="registerEmail">Personal email or Gmail</label><input id="registerEmail" type="email" autocomplete="email" placeholder="you@gmail.com" required /></div>
+          <div><label for="registerPhone">Phone</label><input id="registerPhone" type="tel" autocomplete="tel" placeholder="Phone number" /></div>
+          <div><label for="registerPassword">Create a CuraTech password</label><input id="registerPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required /></div>
+          <div><label for="registerRole">Role</label><select id="registerRole"><option value="patient">Patient</option><option value="doctor">Doctor</option></select></div>
+          <button class="btn btn-primary" onclick="registerUser()">Register</button>
+          <button class="btn btn-gray" onclick="showPage('login')">Back to Login</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="adminDashboard" class="page hidden">
+    <div class="dashboard-layout" data-role="admin">
+      <aside class="sidebar">
+        <div class="sidebar-title"><h2>🩺 CuraTech</h2><p>Admin Panel</p></div>
+        <button class="active" onclick="goToDashboardSection('adminOverview',this)">🏠 Overview</button>
+        <button onclick="goToDashboardSection('adminUsersSection',this)">👥 Users</button>
+        <button onclick="goToDashboardSection('adminDoctorsSection',this)">🩺 Doctors</button>
+        <button onclick="goToDashboardSection('adminPatientsSection',this)">🧑‍🤝‍🧑 Patients</button>
+        <button onclick="goToDashboardSection('adminAppointmentsSection',this)">📅 Appointments</button>
+        <button class="sidebar-logout" onclick="logout()">🚪 Logout</button>
+      </aside>
+      <main class="dashboard-main"><div class="dashboard-content">
+        <div id="adminOverview" class="dashboard-welcome dashboard-anchor"><div><h1>Clinic command center</h1><p>Welcome, <span data-user-name></span>. Monitor people, care teams, and appointments from one place.</p></div><div class="welcome-mark">📊</div></div>
+        <div class="dashboard-quicklinks"><button onclick="loadAdminDashboard()">↻ Refresh dashboard</button><button onclick="goToDashboardSection('adminUsersSection')">Manage users</button><button onclick="goToDashboardSection('adminAppointmentsSection')">Review appointments</button></div>
+        <div id="adminStats" class="stats"></div>
+        <div id="adminUsersSection" class="table-card dashboard-anchor">
+          <div class="toolbar"><h3 style="color:#134e4a;">User Management</h3><div class="search-box"><input id="userSearch" type="text" placeholder="Search users..." oninput="searchTable(this.value,'usersTable')" /></div></div>
+          <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody id="usersTable"></tbody></table>
+        </div>
+        <div id="adminDoctorsSection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Doctors</h3>
+          <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Specialization</th><th>Experience</th><th>Availability</th></tr></thead><tbody id="doctorsTable"></tbody></table>
+        </div>
+        <div id="adminPatientsSection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Patients</h3>
+          <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Gender</th><th>Blood Group</th></tr></thead><tbody id="patientsTable"></tbody></table>
+        </div>
+        <div id="adminAppointmentsSection" class="table-card dashboard-anchor">
+          <div class="toolbar"><h3 style="color:#134e4a;">Appointment Management</h3><div class="search-box"><input id="appointmentSearch" type="text" placeholder="Search appointments..." oninput="searchTable(this.value,'adminAppointmentsTable')" /></div></div>
+          <table><thead><tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminAppointmentsTable"></tbody></table>
+        </div>
+      </div></main>
+    </div>
+  </section>
+
+  <section id="doctorDashboard" class="page hidden">
+    <div class="dashboard-layout" data-role="doctor">
+      <aside class="sidebar">
+        <div class="sidebar-title"><h2>🩺 CuraTech</h2><p>Doctor Panel</p></div>
+        <button class="active" onclick="goToDashboardSection('doctorOverview',this)">🏠 Overview</button>
+        <button onclick="goToDashboardSection('doctorAppointmentsSection',this)">📋 Appointments</button>
+        <button onclick="goToDashboardSection('doctorScheduleSection',this)">🕒 Availability</button>
+        <button onclick="goToDashboardSection('doctorToolsSection',this)">🩺 Care tools</button>
+        <button class="sidebar-logout" onclick="logout()">🚪 Logout</button>
+      </aside>
+      <main class="dashboard-main"><div class="dashboard-content">
+        <div id="doctorOverview" class="dashboard-welcome dashboard-anchor"><div><h1>Your care desk</h1><p>Good day, Dr. <span data-user-name></span>. Review your patient queue and clinic availability.</p></div><div class="welcome-mark">🩺</div></div>
+        <div class="dashboard-quicklinks"><button onclick="loadDoctorDashboard()">↻ Refresh appointments</button><button onclick="goToDashboardSection('doctorAppointmentsSection')">Open patient queue</button><button onclick="goToDashboardSection('doctorScheduleSection')">Update availability</button></div>
+        <div id="doctorStats" class="stats"></div>
+        <div id="doctorAppointmentsSection" class="table-card dashboard-anchor">
+          <div class="toolbar"><div><h3 class="dashboard-section-title">Patient queue</h3><p style="color:var(--muted);">Confirm visits, complete consultations, or open a medical record.</p></div><div class="search-box"><input type="search" placeholder="Search patients..." oninput="searchTable(this.value,'doctorAppointmentsTable')" /></div></div>
+          <table><thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="doctorAppointmentsTable"></tbody></table>
+        </div>
+        <div id="doctorScheduleSection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Weekly availability</h3>
+          <form class="schedule-form" onsubmit="saveDoctorSchedule(event)">
+            <div><label for="scheduleDay">Day</label><select id="scheduleDay" required><option value="">Choose a day</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+            <div><label for="scheduleStart">Starts</label><input id="scheduleStart" type="time" required /></div>
+            <div><label for="scheduleEnd">Ends</label><input id="scheduleEnd" type="time" required /></div>
+            <div><label for="scheduleStatus">Availability</label><select id="scheduleStatus"><option value="available">Available</option><option value="unavailable">Unavailable</option></select></div>
+            <button class="btn btn-primary" type="submit">Add hours</button>
+          </form>
+          <div style="overflow-x:auto;margin-top:18px;"><table><thead><tr><th>Day</th><th>Hours</th><th>Status</th><th>Action</th></tr></thead><tbody id="doctorScheduleTable"></tbody></table></div>
+        </div>
+        <div id="doctorToolsSection" class="doctor-tools dashboard-anchor" style="margin-top:22px;">
+          <button class="quick-action" onclick="goToDashboardSection('doctorAppointmentsSection')"><strong>📝 Create a medical record</strong><span>Open a patient visit and add diagnosis, prescription, and clinical notes.</span></button>
+          <div class="quick-action" style="cursor:default;"><strong>🔐 Patient-first care</strong><span>Medical records are associated with the patient and doctor profiles in your clinic database.</span></div>
+        </div>
+      </div></main>
+    </div>
+  </section>
+
+  <section id="patientDashboard" class="page hidden">
+    <div class="dashboard-layout" data-role="patient">
+      <aside class="sidebar">
+        <div class="sidebar-title"><h2>🩺 CuraTech</h2><p>Patient Panel</p></div>
+        <button class="active" onclick="goToDashboardSection('patientOverview',this)">🏠 My health</button>
+        <button onclick="goToDashboardSection('patientBookingSection',this)">📅 Book visit</button>
+        <button onclick="goToDashboardSection('patientAppointmentsSection',this)">📝 Appointments</button>
+        <button onclick="goToDashboardSection('patientHistorySection',this)">📄 Medical history</button>
+        <button onclick="goToDashboardSection('patientProfileSection',this)">👤 My profile</button>
+        <button class="sidebar-logout" onclick="logout()">🚪 Logout</button>
+      </aside>
+      <main class="dashboard-main"><div class="dashboard-content">
+        <div id="patientOverview" class="dashboard-welcome dashboard-anchor"><div><h1>Your health, in one place</h1><p>Welcome back, <span data-user-name></span>. Book care, track your visits, and review your medical history.</p></div><div class="welcome-mark">💚</div></div>
+        <div class="dashboard-quicklinks"><button onclick="goToDashboardSection('patientBookingSection')">＋ Book a visit</button><button onclick="goToDashboardSection('patientAppointmentsSection')">View appointments</button><button onclick="goToDashboardSection('patientHistorySection')">Medical history</button></div>
+        <div id="patientStats" class="stats"></div>
+        <div id="patientBookingSection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Find care and book a visit</h3>
+          <div class="form-grid">
+            <div class="form-row"><div><label for="appointmentDoctor">Doctor</label><select id="appointmentDoctor"></select></div><div><label for="appointmentDate">Date</label><input id="appointmentDate" type="date" /></div></div>
+            <div class="form-row"><div><label for="appointmentTime">Time</label><input id="appointmentTime" type="time" /></div><div><label for="appointmentType">Appointment Type</label><select id="appointmentType"><option value="Consultation">Consultation</option><option value="Follow-up">Follow-up</option><option value="Checkup">Checkup</option><option value="Emergency">Emergency</option></select></div></div>
+            <div><label for="appointmentReason">Reason</label><textarea id="appointmentReason" placeholder="Describe the issue or visit reason"></textarea></div>
+            <button class="btn btn-primary" onclick="bookAppointment()">Book Appointment</button>
+          </div>
+        </div>
+        <div id="patientAppointmentsSection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Your appointments</h3>
+          <table><thead><tr><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody id="patientAppointmentsTable"></tbody></table>
+        </div>
+        <div id="patientHistorySection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Medical history</h3>
+          <p style="color:var(--muted);margin-bottom:12px;">Diagnoses, prescriptions and notes shared by your care team.</p>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Doctor</th><th>Diagnosis</th><th>Prescription</th><th>Notes</th></tr></thead><tbody id="patientHistoryTable"></tbody></table></div>
+        </div>
+        <div id="patientProfileSection" class="table-card dashboard-anchor">
+          <h3 class="dashboard-section-title">Account profile</h3>
+          <div id="patientProfileCard" class="profile-card"></div>
+        </div>
+      </div></main>
+    </div>
+  </section>
+
+  <div id="toast" class="toast"></div>
+  <dialog id="medicalRecordDialog" class="record-dialog">
+    <form class="record-form" onsubmit="saveMedicalRecord(event)">
+      <div><h2 style="color:#312e81;">Patient visit record</h2><p id="recordPatientName" style="color:var(--muted);margin-top:5px;"></p></div>
+      <input id="recordPatientId" type="hidden" />
+      <div><label for="recordDiagnosis">Diagnosis</label><textarea id="recordDiagnosis" required></textarea></div>
+      <div><label for="recordPrescription">Prescription</label><textarea id="recordPrescription"></textarea></div>
+      <div><label for="recordNotes">Clinical notes</label><textarea id="recordNotes"></textarea></div>
+      <div class="record-dialog-actions"><button type="button" class="btn btn-gray" onclick="document.getElementById('medicalRecordDialog').close()">Close</button><button type="submit" class="btn btn-primary">Save record</button></div>
+    </form>
+  </dialog>
+
+  <script>
+    var API_BASE = new URL('../backend/backend.php', window.location.href).toString();
+    var STATE = { user:null, doctors:[], appointments:[], schedules:[] };
+
+    function showPage(pageId) {
+      var pages = document.querySelectorAll('.page');
+      for (var i = 0; i < pages.length; i++) { pages[i].classList.add('hidden'); }
+      var selected = document.getElementById(pageId);
+      if (selected) { selected.classList.remove('hidden'); }
+      var current = getCurrentUser();
+      if (!current && pageId !== 'home' && pageId !== 'login' && pageId !== 'register') { showPage('home'); }
+    }
+
+    function getCurrentUser() {
+      try { return JSON.parse(localStorage.getItem('curatechUser')); }
+      catch (error) { return null; }
+    }
+
+    function saveCurrentUser(user) {
+      localStorage.setItem('curatechUser', JSON.stringify(user));
+      STATE.user = user;
+      var nameNodes = document.querySelectorAll('[data-user-name]');
+      for (var i = 0; i < nameNodes.length; i++) { nameNodes[i].textContent = user.full_name || 'there'; }
+    }
+    function clearCurrentUser() { localStorage.removeItem('curatechUser'); STATE.user = null; }
+    function showToast(message) { var toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(function(){ toast.classList.remove('show'); }, 2600); }
+
+    async function readApiResponse(response) {
+      var json;
+      try { json = await response.json(); }
+      catch (error) {
+        throw new Error(response.ok ? 'The backend returned an invalid response.' : 'Backend request failed with HTTP ' + response.status + '.');
+      }
+      if (!response.ok) { throw new Error(json.message || 'Backend request failed with HTTP ' + response.status + '.'); }
+      if (!json || typeof json.success === 'undefined') { throw new Error('Unexpected server response.'); }
+      if (!json.success) { throw new Error(json.message || 'Request failed.'); }
+      return json;
+    }
+
+    async function apiRequest(action, payload, method) {
+      method = method || 'POST';
+      payload = payload || {};
+      if (method === 'GET') {
+        var params = new URLSearchParams();
+        params.append('action', action);
+        for (var key in payload) { params.append(key, payload[key]); }
+        var response = await fetch(API_BASE + '?' + params.toString());
+        return await readApiResponse(response);
+      }
+      var response = await fetch(API_BASE, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(Object.assign({ action: action }, payload)) });
+      return await readApiResponse(response);
+    }
+
+    function roleDashboard(role) { if (role === 'admin') return 'adminDashboard'; if (role === 'doctor') return 'doctorDashboard'; return 'patientDashboard'; }
+
+    function openUserDashboard(user) {
+      saveCurrentUser(user);
+      showPage(roleDashboard(user.role));
+      if (user.role === 'admin') { loadAdminDashboard(); }
+      if (user.role === 'doctor') { loadDoctorDashboard(); }
+      if (user.role === 'patient') { loadPatientDashboard(); }
+    }
+
+    async function loginUser() {
+      var email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      var password = document.getElementById('loginPassword').value;
+      if (!email || !password) { showToast('Email and password are required.'); return; }
+      try {
+        var result = await apiRequest('login', { email:email, password:password }, 'POST');
+        openUserDashboard(result.data);
+        showToast('Login successful.');
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function registerUser() {
+      var name = document.getElementById('registerName').value.trim();
+      var email = document.getElementById('registerEmail').value.trim().toLowerCase();
+      var phone = document.getElementById('registerPhone').value.trim();
+      var password = document.getElementById('registerPassword').value;
+      var role = document.getElementById('registerRole').value;
+      if (!name || !email || !password) { showToast('Please complete all required fields.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Enter a valid email address.'); return; }
+      if (password.length < 6) { showToast('Password must contain at least 6 characters.'); return; }
+      try {
+        await apiRequest('register', { name:name, email:email, phone:phone, password:password, role:role }, 'POST');
+        var loginResult = await apiRequest('login', { email:email, password:password }, 'POST');
+        document.getElementById('registerName').value = '';
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerPhone').value = '';
+        document.getElementById('registerPassword').value = '';
+        openUserDashboard(loginResult.data);
+        showToast('Account created. You are now signed in.');
+      } catch (error) { showToast(error.message); }
+    }
+
+    function logout() { clearCurrentUser(); showToast('You have been logged out.'); showPage('home'); }
+
+    function createStatusBadge(status) {
+      var clean = (status || '').toLowerCase();
+      var map = { active:'status-active', inactive:'status-inactive', pending:'status-pending', confirmed:'status-confirmed', cancelled:'status-cancelled', completed:'status-completed' };
+      var label = clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : 'N/A';
+      return '<span class="status ' + (map[clean] || 'status-active') + '">' + label + '</span>';
+    }
+
+    function formatDate(value) {
+      if (!value) { return 'N/A'; }
+      var datePart = String(value).match(/^\d{4}-\d{2}-\d{2}/);
+      var dateValue = datePart ? datePart[0] : value;
+      var d = new Date(dateValue + 'T00:00:00');
+      return isNaN(d.getTime()) ? value : d.toLocaleDateString();
+    }
+
+    function searchTable(value, tableId) { var rows = document.querySelectorAll('#' + tableId + ' tr'); var term = (value || '').toLowerCase(); for (var i = 0; i < rows.length; i++) { rows[i].style.display = rows[i].textContent.toLowerCase().includes(term) ? '' : 'none'; } }
+
+    function goToDashboardSection(sectionId, button) {
+      var section = document.getElementById(sectionId);
+      if (!section) { return; }
+      section.scrollIntoView({ behavior:'smooth', block:'start' });
+      var dashboard = section.closest('.dashboard-layout');
+      if (dashboard) {
+        var buttons = dashboard.querySelectorAll('.sidebar button');
+        for (var i = 0; i < buttons.length; i++) { buttons[i].classList.remove('active'); }
+      }
+      if (button) { button.classList.add('active'); }
+    }
+
+    function buildUserStatusToggle(user) {
+      return '<button class="btn btn-red btn-sm" onclick="toggleUserStatus(' + user.id + ', \'' + user.status + '\')">' + (user.status === 'active' ? 'Deactivate' : 'Activate') + '</button>';
+    }
+
+    function buildMedicalRecordButton(appointment) {
+      return '<button class="btn btn-blue btn-sm" onclick="openMedicalRecord(' + appointment.patient_id + ', \'' + encodeURIComponent(appointment.patient_name || 'Patient') + '\')">Add record</button>';
+    }
+
+    function buildAppointmentActionButtons(appointmentId, allowConfirm) {
+      var confirmButton = '<button class="btn btn-green btn-sm" onclick="updateAppointmentStatus(' + appointmentId + ', \'confirmed\')">Confirm</button>';
+      var cancelButton = '<button class="btn btn-red btn-sm" onclick="updateAppointmentStatus(' + appointmentId + ', \'cancelled\')">Cancel</button>';
+      if (!allowConfirm) { return cancelButton; }
+      return confirmButton + cancelButton;
+    }
+
+    async function loadAdminDashboard() {
+      var user = getCurrentUser();
+      if (!user || user.role !== 'admin') { showPage('login'); return; }
+      showPage('adminDashboard');
+      saveCurrentUser(user);
+      try {
+        var statsResult = await apiRequest('dashboard_stats', {}, 'GET');
+        var usersResult = await apiRequest('get_users', {}, 'GET');
+        var doctorsResult = await apiRequest('get_doctors', {}, 'GET');
+        var patientsResult = await apiRequest('get_patients', {}, 'GET');
+        var appointmentsResult = await apiRequest('all_appointments', {}, 'GET');
+        var stats = statsResult.data || {};
+        var users = usersResult.data || [];
+        var doctors = doctorsResult.data || [];
+        var patients = patientsResult.data || [];
+        var appointments = appointmentsResult.data || [];
+        document.getElementById('adminStats').innerHTML = '<div class="stat-card"><h3>Total Users</h3><div class="stat-number">' + (stats.users || 0) + '</div></div><div class="stat-card"><h3>Total Doctors</h3><div class="stat-number">' + (stats.doctors || 0) + '</div></div><div class="stat-card"><h3>Total Patients</h3><div class="stat-number">' + (stats.patients || 0) + '</div></div><div class="stat-card"><h3>Total Appointments</h3><div class="stat-number">' + (stats.appointments || 0) + '</div></div><div class="stat-card"><h3>Pending</h3><div class="stat-number">' + (stats.pending_appointments || 0) + '</div></div>';
+        document.getElementById('usersTable').innerHTML = users.map(function(u){ return '<tr><td>' + u.id + '</td><td>' + u.full_name + '</td><td>' + u.email + '</td><td>' + (u.phone || 'N/A') + '</td><td>' + u.role + '</td><td>' + createStatusBadge(u.status) + '</td><td>' + formatDate(u.created_at) + '</td><td>' + buildUserStatusToggle(u) + '</td></tr>'; }).join('') || '<tr><td colspan="8">No users found.</td></tr>';
+        document.getElementById('doctorsTable').innerHTML = doctors.map(function(d){ return '<tr><td>' + d.doctor_id + '</td><td>' + d.full_name + '</td><td>' + d.email + '</td><td>' + (d.specialization || 'N/A') + '</td><td>' + (d.experience || 'N/A') + '</td><td>Available</td></tr>'; }).join('') || '<tr><td colspan="6">No doctors found.</td></tr>';
+        document.getElementById('patientsTable').innerHTML = patients.map(function(p){ return '<tr><td>' + p.patient_id + '</td><td>' + p.full_name + '</td><td>' + p.email + '</td><td>' + (p.phone || 'N/A') + '</td><td>' + (p.gender || 'N/A') + '</td><td>' + (p.blood_group || 'N/A') + '</td></tr>'; }).join('') || '<tr><td colspan="6">No patients found.</td></tr>';
+        document.getElementById('adminAppointmentsTable').innerHTML = appointments.map(function(a){ return '<tr><td>' + a.id + '</td><td>' + a.patient_name + '</td><td>' + a.doctor_name + '</td><td>' + formatDate(a.appointment_date) + '</td><td>' + a.appointment_time + '</td><td>' + (a.reason || 'N/A') + '</td><td>' + createStatusBadge(a.status) + '</td><td>' + buildAppointmentActionButtons(a.id, true) + '</td></tr>'; }).join('') || '<tr><td colspan="8">No appointments found.</td></tr>';
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function toggleUserStatus(userId, currentStatus) {
+      try {
+        var action = currentStatus === 'active' ? 'deactivate_user' : 'activate_user';
+        await apiRequest(action, { user_id:userId }, 'POST');
+        showToast(action === 'deactivate_user' ? 'User deactivated.' : 'User activated.');
+        loadAdminDashboard();
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function updateAppointmentStatus(id, status) {
+      try {
+        await apiRequest('update_appointment_status', { appointment_id:id, status:status }, 'POST');
+        showToast('Appointment ' + status + '.');
+        var current = getCurrentUser();
+        if (current && current.role === 'admin') { loadAdminDashboard(); }
+        if (current && current.role === 'doctor') { loadDoctorDashboard(); }
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function loadDoctorDashboard() {
+      var user = getCurrentUser();
+      if (!user || user.role !== 'doctor') { showPage('login'); return; }
+      showPage('doctorDashboard');
+      try {
+        if (!user.doctor_id) { clearCurrentUser(); showPage('login'); showToast('Please log in again to refresh your doctor profile.'); return; }
+        var result = await apiRequest('doctor_appointments', { doctor_id:user.doctor_id }, 'GET');
+        var appointments = result.data || [];
+        var stats = { total:appointments.length, pending:0, confirmed:0, completed:0 };
+        for (var i = 0; i < appointments.length; i++) {
+          if (appointments[i].status === 'pending') stats.pending++;
+          if (appointments[i].status === 'confirmed') stats.confirmed++;
+          if (appointments[i].status === 'completed') stats.completed++;
+        }
+        document.getElementById('doctorStats').innerHTML = '<div class="stat-card"><h3>Total</h3><div class="stat-number">' + stats.total + '</div></div><div class="stat-card"><h3>Pending</h3><div class="stat-number">' + stats.pending + '</div></div><div class="stat-card"><h3>Confirmed</h3><div class="stat-number">' + stats.confirmed + '</div></div><div class="stat-card"><h3>Completed</h3><div class="stat-number">' + stats.completed + '</div></div>';
+        document.getElementById('doctorAppointmentsTable').innerHTML = appointments.map(function(a){ return '<tr><td>' + a.patient_name + '</td><td>' + formatDate(a.appointment_date) + '</td><td>' + a.appointment_time + '</td><td>' + (a.reason || 'N/A') + '</td><td>' + createStatusBadge(a.status) + '</td><td>' + buildAppointmentActionButtons(a.id, true) + ' ' + buildMedicalRecordButton(a) + '</td></tr>'; }).join('') || '<tr><td colspan="6">No appointments found.</td></tr>';
+        await loadDoctorSchedule();
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function loadPatientDashboard() {
+      var user = getCurrentUser();
+      if (!user || user.role !== 'patient') { showPage('login'); return; }
+      showPage('patientDashboard');
+      saveCurrentUser(user);
+      try {
+        var doctorResult = await apiRequest('get_doctors', {}, 'GET');
+        if (!user.patient_id) { clearCurrentUser(); showPage('login'); showToast('Please log in again to refresh your patient profile.'); return; }
+        var patientResult = await apiRequest('patient_appointments', { patient_id:user.patient_id }, 'GET');
+        STATE.doctors = doctorResult.data || [];
+        var select = document.getElementById('appointmentDoctor');
+        select.innerHTML = STATE.doctors.map(function(d){ return '<option value="' + d.doctor_id + '">' + d.full_name + ' - ' + (d.specialization || 'General') + '</option>'; }).join('') || '<option value="">No doctors available</option>';
+        var appointments = patientResult.data || [];
+        var stats = { total:appointments.length, pending:0, confirmed:0, completed:0 };
+        for (var i = 0; i < appointments.length; i++) { if (appointments[i].status === 'pending') stats.pending++; if (appointments[i].status === 'confirmed') stats.confirmed++; if (appointments[i].status === 'completed') stats.completed++; }
+        document.getElementById('patientStats').innerHTML = '<div class="stat-card"><h3>Total</h3><div class="stat-number">' + stats.total + '</div></div><div class="stat-card"><h3>Pending</h3><div class="stat-number">' + stats.pending + '</div></div><div class="stat-card"><h3>Confirmed</h3><div class="stat-number">' + stats.confirmed + '</div></div><div class="stat-card"><h3>Completed</h3><div class="stat-number">' + stats.completed + '</div></div>';
+        document.getElementById('patientAppointmentsTable').innerHTML = appointments.map(function(a){ return '<tr><td>' + a.doctor_name + '</td><td>' + formatDate(a.appointment_date) + '</td><td>' + a.appointment_time + '</td><td>' + (a.reason || 'N/A') + '</td><td>' + createStatusBadge(a.status) + '</td><td><button class="btn btn-red btn-sm" onclick="cancelPatientAppointment(' + a.id + ')">Cancel</button></td></tr>'; }).join('') || '<tr><td colspan="6">No appointments found.</td></tr>';
+        await loadPatientMedicalHistory();
+        renderPatientProfile(user);
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function loadDoctorSchedule() {
+      var user = getCurrentUser();
+      if (!user || !user.doctor_id) { return; }
+      var result = await apiRequest('doctor_schedule', { doctor_id:user.doctor_id }, 'GET');
+      STATE.schedules = result.data || [];
+      document.getElementById('doctorScheduleTable').innerHTML = STATE.schedules.map(function(item) {
+        return '<tr><td>' + item.day_name + '</td><td>' + item.start_time + ' – ' + item.end_time + '</td><td>' + createStatusBadge(item.status) + '</td><td><button class="btn btn-red btn-sm" onclick="deleteDoctorSchedule(' + item.id + ')">Remove</button></td></tr>';
+      }).join('') || '<tr><td colspan="4">No availability added yet.</td></tr>';
+    }
+
+    async function saveDoctorSchedule(event) {
+      event.preventDefault();
+      var user = getCurrentUser();
+      if (!user || !user.doctor_id) { showToast('Please log in again to refresh your doctor profile.'); return; }
+      var start = document.getElementById('scheduleStart').value;
+      var end = document.getElementById('scheduleEnd').value;
+      if (start >= end) { showToast('The ending time must be later than the start time.'); return; }
+      try {
+        await apiRequest('add_schedule', {
+          doctor_id:user.doctor_id,
+          day_name:document.getElementById('scheduleDay').value,
+          start_time:start,
+          end_time:end,
+          status:document.getElementById('scheduleStatus').value
+        }, 'POST');
+        event.target.reset();
+        await loadDoctorSchedule();
+        showToast('Availability saved.');
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function deleteDoctorSchedule(scheduleId) {
+      try {
+        await apiRequest('delete_schedule', { schedule_id:scheduleId }, 'POST');
+        await loadDoctorSchedule();
+        showToast('Availability removed.');
+      } catch (error) { showToast(error.message); }
+    }
+
+    function openMedicalRecord(patientId, encodedName) {
+      document.getElementById('recordPatientId').value = patientId;
+      document.getElementById('recordPatientName').textContent = decodeURIComponent(encodedName);
+      document.getElementById('recordDiagnosis').value = '';
+      document.getElementById('recordPrescription').value = '';
+      document.getElementById('recordNotes').value = '';
+      document.getElementById('medicalRecordDialog').showModal();
+    }
+
+    async function saveMedicalRecord(event) {
+      event.preventDefault();
+      var user = getCurrentUser();
+      if (!user || !user.doctor_id) { showToast('Please log in again to refresh your doctor profile.'); return; }
+      try {
+        await apiRequest('add_medical_record', {
+          patient_id:parseInt(document.getElementById('recordPatientId').value,10),
+          doctor_id:user.doctor_id,
+          diagnosis:document.getElementById('recordDiagnosis').value.trim(),
+          prescription:document.getElementById('recordPrescription').value.trim(),
+          notes:document.getElementById('recordNotes').value.trim()
+        }, 'POST');
+        document.getElementById('medicalRecordDialog').close();
+        showToast('Medical record saved.');
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function loadPatientMedicalHistory() {
+      var user = getCurrentUser();
+      if (!user || !user.patient_id) { return; }
+      var result = await apiRequest('medical_history', { patient_id:user.patient_id }, 'GET');
+      var records = result.data || [];
+      document.getElementById('patientHistoryTable').innerHTML = records.map(function(record) {
+        return '<tr><td>' + formatDate(record.record_date) + '</td><td>' + record.doctor_name + '</td><td>' + (record.diagnosis || 'N/A') + '</td><td>' + (record.prescription || 'N/A') + '</td><td>' + (record.notes || 'N/A') + '</td></tr>';
+      }).join('') || '<tr><td colspan="5">No medical history has been added yet.</td></tr>';
+    }
+
+    function renderPatientProfile(user) {
+      document.getElementById('patientProfileCard').innerHTML =
+        '<div class="profile-field"><span>Full name</span><strong>' + user.full_name + '</strong></div>' +
+        '<div class="profile-field"><span>Email</span><strong>' + user.email + '</strong></div>' +
+        '<div class="profile-field"><span>Phone</span><strong>' + (user.phone || 'Not provided') + '</strong></div>' +
+        '<div class="profile-field"><span>Account status</span><strong>' + createStatusBadge(user.status) + '</strong></div>';
+    }
+
+    async function bookAppointment() {
+      var user = getCurrentUser();
+      if (!user || user.role !== 'patient') { showPage('login'); return; }
+      var doctorId = document.getElementById('appointmentDoctor').value;
+      var appointmentDate = document.getElementById('appointmentDate').value;
+      var appointmentTime = document.getElementById('appointmentTime').value;
+      var appointmentType = document.getElementById('appointmentType').value;
+      var reason = document.getElementById('appointmentReason').value.trim();
+      if (!doctorId || !appointmentDate || !appointmentTime) { showToast('Please select a doctor, date, and time.'); return; }
+      try {
+        if (!user.patient_id) { clearCurrentUser(); showPage('login'); showToast('Please log in again to refresh your patient profile.'); return; }
+        await apiRequest('book_appointment', { patient_id:user.patient_id, doctor_id:parseInt(doctorId,10), appointment_date:appointmentDate, appointment_time:appointmentTime, appointment_type:appointmentType, reason:reason }, 'POST');
+        showToast('Appointment booked successfully.');
+        document.getElementById('appointmentReason').value = '';
+        loadPatientDashboard();
+      } catch (error) { showToast(error.message); }
+    }
+
+    async function cancelPatientAppointment(appointmentId) {
+      try {
+        await apiRequest('cancel_appointment', { appointment_id:appointmentId }, 'POST');
+        showToast('Appointment cancelled.');
+        loadPatientDashboard();
+      } catch (error) { showToast(error.message); }
+    }
+
+    function initApp() {
+      var user = getCurrentUser();
+      if (user) {
+        saveCurrentUser(user);
+        showPage(roleDashboard(user.role));
+        if (user.role === 'admin') { loadAdminDashboard(); }
+        if (user.role === 'doctor') { loadDoctorDashboard(); }
+        if (user.role === 'patient') { loadPatientDashboard(); }
+      } else {
+        showPage('home');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
